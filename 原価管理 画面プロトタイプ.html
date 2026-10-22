@@ -1,0 +1,422 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>原価管理 画面プロトタイプ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{--negfg:#b42318;--shade:rgba(0,0,0,.4);--shadow:rgba(0,0,0,.2);--bg:#ffffff;--fg:#1f2937;--muted:#6b7280;--line:#d1d5db;--panel:#f3f6fa;--head:#1f4e78;--headfg:#ffffff;--accent:#1f4e78;--link:#1d4ed8;--in:#fffbe6;--ok:#e2efda;--warn:#fff2cc;--ng:#f8cbad;--lock:#eeeeee;--sel:#dbeafe}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111827;--fg:#e5e7eb;--muted:#9ca3af;--line:#374151;--panel:#1f2937;--head:#1e3a5f;--headfg:#e5e7eb;--accent:#93c5fd;--link:#93c5fd;--in:#3a3220;--ok:#1f4d2b;--warn:#5c4a12;--ng:#6b2f1f;--lock:#2b2f36;--sel:#1e3a5f;--negfg:#f8a39a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111827;--fg:#e5e7eb;--muted:#9ca3af;--line:#374151;--panel:#1f2937;--head:#1e3a5f;--headfg:#e5e7eb;--accent:#93c5fd;--link:#93c5fd;--in:#3a3220;--ok:#1f4d2b;--warn:#5c4a12;--ng:#6b2f1f;--lock:#2b2f36;--sel:#1e3a5f;--negfg:#f8a39a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Meiryo UI","Yu Gothic UI","Hiragino Sans",sans-serif;font-size:12.5px}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding-block:8px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));background:var(--head);color:var(--headfg)}
+header h1{font-size:15px;margin:0}
+header .sp{flex:1}
+header select,header button{font:inherit}
+.crumb{padding-block:8px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.crumb a{color:var(--link);cursor:pointer}
+main{padding-block:12px 40px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));min-width:0}
+h2{font-size:14px;margin:14px 0 6px;padding-left:6px;border-left:4px solid var(--accent)}
+.note{color:var(--muted);font-size:11.5px;margin:4px 0}
+.box{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--panel);margin:6px 0}
+.row{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.row b{font-weight:bold}
+.wrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse}
+th,td{border:1px solid var(--line);padding:3px 6px;white-space:nowrap}
+th{background:var(--panel);font-weight:normal;color:var(--muted)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+td.sum,tr.sum td{font-weight:bold;background:var(--panel)}
+input[type=number],input[type=text],input[type=month],select,textarea{font:inherit;padding:2px 4px;border:1px solid var(--line);border-radius:3px;background:var(--in);color:var(--fg)}
+input[type=number]{width:84px;text-align:right}
+input.h{width:58px}
+input:disabled,select:disabled{background:var(--lock);color:var(--muted)}
+button{font:inherit;padding:3px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);cursor:pointer}
+button.p{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,a.l:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+a.l{color:var(--link);cursor:pointer;text-decoration:underline}
+.neg{color:var(--negfg)}
+.badge{display:inline-block;padding:0 7px;border-radius:9px;font-size:11px;border:1px solid var(--line)}
+.b-作成中{background:var(--in)}.b-申請中{background:var(--warn)}.b-差戻{background:var(--ng)}.b-承認済{background:var(--ok)}.b-完了{background:var(--lock)}.b-実施中{background:var(--ok)}.b-予定{background:var(--panel)}
+.err{background:var(--ng);padding:4px 8px;border-radius:4px;margin:4px 0}
+.ok{background:var(--ok);padding:4px 8px;border-radius:4px;margin:4px 0}
+.warn{background:var(--warn);padding:4px 8px;border-radius:4px;margin:4px 0}
+.over{background:var(--ng)}
+tr.sel td{background:var(--sel)}
+#modal{position:fixed;inset:0;background:var(--shade);display:none;align-items:flex-start;justify-content:center;padding:calc(40px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));z-index:20;overflow:auto}
+#modal .in{background:var(--bg);border-radius:8px;padding:12px 16px;max-width:1100px;width:100%}
+#data{display:none;border-top:2px solid var(--accent);padding-block:10px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));background:var(--panel)}
+#data.on{display:block}
+#toast{position:fixed;right:calc(16px + env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));max-width:min(420px, calc(100% - 32px));z-index:30}
+#toast div{margin-top:6px;padding:8px 12px;border-radius:6px;background:var(--head);color:var(--headfg);box-shadow:0 2px 6px var(--shadow)}
+</style>
+<header>
+  <h1>建築設計管理システム ― 原価管理（プロトタイプ）</h1>
+  <span class="sp"></span>
+  <label>ログイン者：<select id="who"></select></label>
+  <button id="btnData">データ（テーブル）を見る</button>
+  <button id="btnReset">初期データに戻す</button>
+</header>
+<div class="crumb" id="crumb"></div>
+<main id="main"></main>
+<section id="data"></section>
+<div id="modal"><div class="in" id="modalIn"></div></div>
+<div id="toast"></div>
+
+<script>
+// =====================================================================
+// 案件計画（原価管理：予算・配置計画）画面プロトタイプ
+// データは「案件計画_データモデル_テーブル定義たたき台_V2_20261022.xlsx」のテーブル・列名どおりに持つ。
+// 画面の構成と数値はAH提供1002（原価管理画面）に合わせた。年はサンプルの都合で2026年度にそろえた。
+// 実績・今後見込み・付替（収支計算ドメイン）は対象外。
+// =====================================================================
+const KEY = 'aphrodite-costplan-proto-v1';
+const MONTHLY_LIMIT = 180;
+let db, ui = { screen: 'list', objectId: null, workId: null, discId: null, ebId: null, err: '' };
+
+function seed() {
+  const d = {}; const T = n => (d[n] = []); let ids = {};
+  const ins = (t, o) => { ids[t] = (ids[t] || 0) + 1; const r = { Id: ids[t], ...o }; d[t].push(r); return r; };
+  ['Object','Branch','Employee','Qualification','QualificationHourlyRate','EmployeeQualification','Vendor','Group','ServiceCategory','Discipline','DesignFeeCalcHeader','DesignFeeCalcResult','DesignFeeCalcDetail','DesignRequest','CostPlan','CostPlanWork','CostPlanWorkHistory','BasicBudgetAllocation','BasicBudgetItem','ExecutionBudget','ExecBudgetMember','ExecBudgetMemberMonthly','ExecBudgetCostLine','ExecBudgetCostLineMonthly','ExecutionBudgetApproval','CostDiscipline','DisciplineMapping','PaymentItem','WFStatus'].forEach(T);
+  const sc = {}; ['基本計画','基本設計','実施設計','設計意図伝達＋工事監理'].forEach(n => sc[n] = ins('ServiceCategory', { Name: n }).Id);
+  const dis = {}; ['総合','構造','設備'].forEach(n => dis[n] = ins('Discipline', { Name: n }).Id);
+  const cd = {}; ['意匠','構造','機械','電気'].forEach((n, i) => cd[n] = ins('CostDiscipline', { Name: n, SortOrder: i + 1 }).Id);
+  ins('DisciplineMapping', { DisciplineId: dis['総合'], CostDisciplineId: cd['意匠'], Ratio: 1 });
+  ins('DisciplineMapping', { DisciplineId: dis['構造'], CostDisciplineId: cd['構造'], Ratio: 1 });
+  ins('DisciplineMapping', { DisciplineId: dis['設備'], CostDisciplineId: cd['機械'], Ratio: 1 });
+  const pi = {}; [['人件費',1],['派遣外注費'],['その他の外注費'],['契約オプション業務'],['その他費用'],['確認申請など手数料'],['出張旅費（国内）']].forEach(([n, l], i) => pi[n] = ins('PaymentItem', { Name: n, IsLabor: !!l, SortOrder: i + 1 }).Id);
+  ['作成中','申請中','差戻','承認済'].forEach(n => ins('WFStatus', { Name: n }));
+  const br = { 首都圏: ins('Branch', { Name: '首都圏建築支店' }).Id, 北海道: ins('Branch', { Name: '北海道支店' }).Id };
+  const g = {}; ['設計二第一Ｇ','構造第三Ｇ','設備第三Ｇ'].forEach(n => g[n] = ins('Group', { Name: n }).Id);
+  const q = {}; [['参事',12000],['副参事',11400],['総合職2級',9000],['総合職1級',10000]].forEach(([n, r]) => { q[n] = ins('Qualification', { Name: n }).Id; ins('QualificationHourlyRate', { FiscalYear: 2026, QualificationId: q[n], Rate: r }); });
+  const e = {}; [['山田一郎','参事'],['佐藤次郎','副参事'],['小林三郎','総合職2級'],['鈴木花子','総合職1級'],['田中GL','参事'],['設計部長','参事'],['建築設計管理部長','参事'],['中井一郎','参事']].forEach(([n, qq]) => { e[n] = ins('Employee', { Name: n, GroupId: g['設計二第一Ｇ'] }).Id; ins('EmployeeQualification', { EmployeeId: e[n], QualificationId: q[qq], From: '2020-04', To: n === '小林三郎' ? '2026-06' : null }); });
+  ins('EmployeeQualification', { EmployeeId: e['小林三郎'], QualificationId: q['総合職1級'], From: '2026-07', To: null });
+  const v = ins('Vendor', { Name: '●●設計事務所' }).Id; ins('Vendor', { Name: '△△構造事務所' });
+  // 物件1：25R0010
+  const o1 = ins('Object', { Code: '25R0010', Name: '新工場建設計画' });
+  const calc = ins('DesignFeeCalcHeader', { Code: '2026-125', Version: 1, IsApproved: true });
+  const res = (s, di, a, f, t) => ins('DesignFeeCalcResult', { HeaderId: calc.Id, ServiceCategoryId: sc[s], DisciplineId: dis[di], Amount: a, From: f, To: t });
+  res('基本設計','総合',6000000,'2026-04','2026-08'); res('基本設計','構造',1000000,'2026-04','2026-08'); res('基本設計','設備',3000000,'2026-04','2026-08');
+  res('実施設計','総合',14000000,'2026-09','2027-01'); res('実施設計','構造',2000000,'2026-09','2027-01'); res('実施設計','設備',4000000,'2026-09','2027-01');
+  res('設計意図伝達＋工事監理','総合',49000000,'2027-02','2027-12'); res('設計意図伝達＋工事監理','構造',7000000,'2027-02','2027-12'); res('設計意図伝達＋工事監理','設備',14000000,'2027-02','2027-12');
+  const dP = ins('DesignFeeCalcDetail', { HeaderId: calc.Id, ServiceCategoryId: sc['基本設計'], ItemName: 'パース作成費', Amount: 50000, PaymentItemId: pi['契約オプション業務'] });
+  const dM = ins('DesignFeeCalcDetail', { HeaderId: calc.Id, ServiceCategoryId: sc['基本設計'], ItemName: '模型製作費', Amount: 74500, PaymentItemId: pi['契約オプション業務'] });
+  const cp = ins('CostPlan', { ObjectId: o1.Id, DesignFeeCalcHeaderId: calc.Id, LeadGLEmployeeId: e['田中GL'], LeadGroupId: g['設計二第一Ｇ'] });
+  const work = (s, a, f, t, st) => ins('CostPlanWork', { CostPlanId: cp.Id, ServiceCategoryId: sc[s], RequestBranchId: br.首都圏, TransferBranchId: br.首都圏, DesignFee: a, BasicBudgetRate: 0.83, BasicBudget: Math.round(a * 0.83), PlanFrom: f, PlanTo: t, Status: st });
+  const wB = work('基本設計', 10000000, '2026-04', '2026-08', '実施中');
+  const wJ = work('実施設計', 20000000, '2026-09', '2027-01', '予定');
+  const wK = work('設計意図伝達＋工事監理', 70000000, '2027-02', '2027-12', '予定');
+  ins('DesignRequest', { ObjectId: o1.Id, CostPlanWorkId: wB.Id, RequestNo: 1, RequestType: '設計依頼', IsProspect: false, RequestAmount: 8000000, PeriodFrom: '2026-04', PeriodTo: '2026-07', RequestDate: '2026-03-15', ApprovalStatus: '承認済' });
+  ins('DesignRequest', { ObjectId: o1.Id, CostPlanWorkId: wB.Id, RequestNo: 2, RequestType: '設計依頼', IsProspect: false, RequestAmount: 1000000, PeriodFrom: '2026-07', PeriodTo: '2026-08', RequestDate: '2026-06-20', ApprovalStatus: '承認済' });
+  ins('DesignRequest', { ObjectId: o1.Id, CostPlanWorkId: wJ.Id, RequestNo: 1, RequestType: '設計依頼', IsProspect: true, RequestAmount: 18000000, PeriodFrom: '2026-09', PeriodTo: '2027-01', RequestDate: '', ApprovalStatus: '見込み' });
+  const alloc = (w, rates) => Object.entries(rates).forEach(([n, r]) => ins('BasicBudgetAllocation', { CostPlanWorkId: w.Id, CostDisciplineId: cd[n], AllocRate: r, AllocAmount: Math.round(w.BasicBudget * r), ChargeGroupId: n === '意匠' ? g['設計二第一Ｇ'] : n === '構造' ? g['構造第三Ｇ'] : g['設備第三Ｇ'], ChargeGLEmployeeId: e['田中GL'] }));
+  alloc(wB, { 意匠: .5, 構造: .1, 機械: .3, 電気: .1 }); alloc(wJ, { 意匠: .7, 構造: .1, 機械: .1, 電気: .1 }); alloc(wK, { 意匠: .7, 構造: .1, 機械: .1, 電気: .1 });
+  const aBI = d.BasicBudgetAllocation[0];
+  const items = { 人件費: 2785000, 派遣外注費: 950000, その他の外注費: 0, 契約オプション業務: 124500, その他費用: 83000, 確認申請など手数料: 207500, '出張旅費（国内）': 0 };
+  Object.entries(items).forEach(([n, a]) => ins('BasicBudgetItem', { BasicBudgetAllocationId: aBI.Id, PaymentItemId: pi[n], Amount: a, InitialSource: n === '人件費' ? '自動（残り）' : n === '契約オプション業務' ? '算定書の内訳' : '手入力' }));
+  // 実行予算（基本設計・意匠） 版0 作成中
+  const eb = ins('ExecutionBudget', { BasicBudgetAllocationId: aBI.Id, VersionNo: 0, IsLatest: true, WFStatus: '作成中', EditableByManager: false });
+  const M = ['2026-04','2026-05','2026-06','2026-07','2026-08'];
+  const mem = (role, emp, qq, rate, hrs) => { const m = ins('ExecBudgetMember', { ExecutionBudgetId: eb.Id, Role: role, EmployeeId: emp, QualificationId: q[qq], InvolvementRate: rate, HourlyRate: d.QualificationHourlyRate.find(r => r.QualificationId === q[qq]).Rate, RateFiscalYear: 2026, IsManualRate: false }); hrs.forEach((h, i) => ins('ExecBudgetMemberMonthly', { ExecBudgetMemberId: m.Id, YearMonth: M[i], PlannedHours: h })); };
+  mem('GL', e['山田一郎'], '参事', 5, [3, 3, 3, 3, 3.56]); mem('設計責任者', e['佐藤次郎'], '副参事', 40, [20, 20, 20, 20, 20]); mem('設計担当者', e['小林三郎'], '総合職2級', 55, [30, 30, 30, 30, 40]);
+  const line = (p, name, o, months) => { const l = ins('ExecBudgetCostLine', { ExecutionBudgetId: eb.Id, PaymentItemId: pi[p], ItemName: name, BasicBudgetAmount: 0, ...o }); Object.entries(months).forEach(([m, x]) => ins('ExecBudgetCostLineMonthly', { ExecBudgetCostLineId: l.Id, YearMonth: m, ...x })); };
+  line('派遣外注費', '●●設計事務所', { VendorId: v, HourlyRate: 3800, InvolvementRate: 100, BasicBudgetAmount: 950000 }, { '2026-04': { PlannedHours: 50 }, '2026-05': { PlannedHours: 50 }, '2026-06': { PlannedHours: 60 }, '2026-07': { PlannedHours: 50 }, '2026-08': { PlannedHours: 30 } });
+  line('契約オプション業務', 'パース作成費', { SourceCalcDetailId: dP.Id, BasicBudgetAmount: 50000 }, { '2026-05': { PlannedAmount: 45000 } });
+  line('契約オプション業務', '模型製作費', { SourceCalcDetailId: dM.Id, BasicBudgetAmount: 74500 }, { '2026-06': { PlannedAmount: 79500 } });
+  line('契約オプション業務', 'その他（算定時にない項目）', {}, { '2026-04': { PlannedAmount: 4000 }, '2026-07': { PlannedAmount: 6000 } });
+  line('その他費用', 'その他費用', { BasicBudgetAmount: 83000 }, { '2026-06': { PlannedAmount: 83000 } });
+  line('確認申請など手数料', '確認申請手数料', { BasicBudgetAmount: 207500 }, { '2026-06': { PlannedAmount: 207500 } });
+  // 物件2：配置状況を見るための別物件（山田一郎を配置）
+  const o2 = ins('Object', { Code: '25E0051', Name: '北海道工場第二工場新築工事' });
+  const cp2 = ins('CostPlan', { ObjectId: o2.Id, LeadGLEmployeeId: e['田中GL'] });
+  const w2 = ins('CostPlanWork', { CostPlanId: cp2.Id, ServiceCategoryId: sc['基本設計'], RequestBranchId: br.北海道, TransferBranchId: br.北海道, DesignFee: 36000000, BasicBudgetRate: 0.83, BasicBudget: 29880000, PlanFrom: '2026-04', PlanTo: '2026-09', Status: '実施中' });
+  ins('DesignRequest', { ObjectId: o2.Id, CostPlanWorkId: w2.Id, RequestNo: 1, RequestType: '設計依頼', IsProspect: false, RequestAmount: 36000000, PeriodFrom: '2026-04', PeriodTo: '2026-09', RequestDate: '2026-03-01', ApprovalStatus: '承認済' });
+  const a2 = ins('BasicBudgetAllocation', { CostPlanWorkId: w2.Id, CostDisciplineId: cd['意匠'], AllocRate: 1, AllocAmount: 29880000, ChargeGroupId: g['設計二第一Ｇ'], ChargeGLEmployeeId: e['田中GL'] });
+  ins('BasicBudgetItem', { BasicBudgetAllocationId: a2.Id, PaymentItemId: pi['人件費'], Amount: 29880000, InitialSource: '自動（残り）' });
+  const eb2 = ins('ExecutionBudget', { BasicBudgetAllocationId: a2.Id, VersionNo: 0, IsLatest: true, WFStatus: '承認済', EditableByManager: false, ApprovedBy: e['田中GL'], ApprovedOn: '2026-03-25' });
+  const m2 = ins('ExecBudgetMember', { ExecutionBudgetId: eb2.Id, Role: '設計担当者', EmployeeId: e['山田一郎'], QualificationId: q['参事'], InvolvementRate: 100, HourlyRate: 12000, RateFiscalYear: 2026, IsManualRate: false });
+  [170, 170, 175, 178, 178, 120].forEach((h, i) => ins('ExecBudgetMemberMonthly', { ExecBudgetMemberId: m2.Id, YearMonth: ['2026-04','2026-05','2026-06','2026-07','2026-08','2026-09'][i], PlannedHours: h }));
+  d._ids = ids;
+  return d;
+}
+
+// ---------- データの読み書き ----------
+const load = () => { try { const s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {} return seed(); };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+const ins = (t, o) => { db._ids[t] = (db._ids[t] || 0) + 1; const r = { Id: db._ids[t], ...o }; db[t].push(r); return r; };
+const get = (t, id) => db[t].find(r => r.Id === id);
+const where = (t, f) => db[t].filter(f);
+const del = (t, f) => { db[t] = db[t].filter(r => !f(r)); };
+db = load();
+
+// ---------- 計算 ----------
+const en = v => (v == null || v === '') ? '' : Math.round(v).toLocaleString('ja-JP');
+const yen = v => { if (v == null || v === '') return ''; const k = Math.sign(v) * Math.ceil(Math.round(Math.abs(v)) / 1000); return (k === 0 ? 0 : k).toLocaleString('ja-JP'); };
+const num = v => +v || 0;
+const sum = a => a.reduce((x, y) => x + (+y || 0), 0);
+const months = (f, t) => { const r = []; let [y, m] = f.split('-').map(Number); const [ty, tm] = t.split('-').map(Number); while (y < ty || (y === ty && m <= tm)) { r.push(`${y}-${String(m).padStart(2, '0')}`); m++; if (m > 12) { m = 1; y++; } } return r; };
+const mlabel = s => +s.split('-')[1] + '月';
+const nm = (t, id) => (get(t, id) || {}).Name || '';
+const me = () => +document.getElementById('who').value;
+const WHO = [['佐藤次郎','設計責任者'],['田中GL','担当GL・主幹GL（上長）'],['設計部長','所属設計部長'],['建築設計管理部長','建築設計管理部長'],['中井一郎','建築設計管理部（依頼書登録）']];
+const empId = n => db.Employee.find(e => e.Name === n).Id;
+const isRole = n => me() === empId(n);
+const reqC = w => sum(where('DesignRequest', r => r.CostPlanWorkId === w.Id && !r.IsProspect).map(r => r.RequestAmount));
+const reqSpan = w => { const rs = where('DesignRequest', r => r.CostPlanWorkId === w.Id && !r.IsProspect); return rs.length ? `${rs.map(r => r.PeriodFrom).sort()[0]}～${rs.map(r => r.PeriodTo).sort().pop()}` : ''; };
+const allocs = w => where('BasicBudgetAllocation', a => a.CostPlanWorkId === w.Id).sort((a, b) => get('CostDiscipline', a.CostDisciplineId).SortOrder - get('CostDiscipline', b.CostDisciplineId).SortOrder);
+const items = a => db.PaymentItem.map(p => where('BasicBudgetItem', i => i.BasicBudgetAllocationId === a.Id && i.PaymentItemId === p.Id)[0] || { PaymentItemId: p.Id, Amount: 0, _new: true });
+const laborBase = a => a.AllocAmount - sum(where('BasicBudgetItem', i => i.BasicBudgetAllocationId === a.Id && !get('PaymentItem', i.PaymentItemId).IsLabor).map(i => i.Amount));
+const latestEB = a => where('ExecutionBudget', e => e.BasicBudgetAllocationId === a.Id && e.IsLatest)[0];
+const memMonthly = m => where('ExecBudgetMemberMonthly', x => x.ExecBudgetMemberId === m.Id);
+const memAmt = m => sum(memMonthly(m).map(x => num(x.PlannedHours) * m.HourlyRate));
+const lineMonthly = l => where('ExecBudgetCostLineMonthly', x => x.ExecBudgetCostLineId === l.Id);
+const lineMonthAmt = (l, x) => l.HourlyRate ? num(x.PlannedHours) * l.HourlyRate : num(x.PlannedAmount);
+const lineAmt = l => sum(lineMonthly(l).map(x => lineMonthAmt(l, x)));
+const ebLabor = eb => sum(where('ExecBudgetMember', m => m.ExecutionBudgetId === eb.Id).map(memAmt));
+const ebByItem = (eb, pid) => get('PaymentItem', pid).IsLabor ? ebLabor(eb) : sum(where('ExecBudgetCostLine', l => l.ExecutionBudgetId === eb.Id && l.PaymentItemId === pid).map(lineAmt));
+const ebTotal = eb => eb ? ebLabor(eb) + sum(where('ExecBudgetCostLine', l => l.ExecutionBudgetId === eb.Id).map(lineAmt)) : 0;
+const workF = w => sum(allocs(w).map(a => ebTotal(latestEB(a))));
+const rateOf = qid => (db.QualificationHourlyRate.find(r => r.QualificationId === qid) || {}).Rate || 0;
+const qualAt = (eid, ym) => (db.EmployeeQualification.find(x => x.EmployeeId === eid && x.From <= ym && (!x.To || x.To >= ym)) || {}).QualificationId;
+const route = (eb, a) => ebTotal(eb) > a.AllocAmount ? '赤字' : '予算内';
+const editable = eb => { const w = get('CostPlanWork', get('BasicBudgetAllocation', eb.BasicBudgetAllocationId).CostPlanWorkId); return w.Status !== '完了' && (eb.WFStatus === '作成中' || eb.WFStatus === '差戻') && eb.IsLatest; };
+const ts = (n = 16) => { const d = new Date(); const p = x => String(x).padStart(2, '0'); return (d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes())).slice(0, n); };
+function ask(msg, yes) {
+  const md = document.getElementById('modal');
+  document.getElementById('modalIn').innerHTML = '<h2>確認</h2><p>' + msg + '</p><div class="row"><button class="p" id="askYes">はい</button><button id="askNo">キャンセル</button></div>';
+  md.style.display = 'flex';
+  document.getElementById('askYes').onclick = () => { md.style.display = 'none'; yes(); };
+  document.getElementById('askNo').onclick = () => { md.style.display = 'none'; };
+}
+const toast = m => { const d = document.createElement('div'); d.textContent = m; document.getElementById('toast').appendChild(d); setTimeout(() => d.remove(), 4000); };
+
+// ---------- 画面 ----------
+function render() {
+  save();
+  const c = document.getElementById('crumb'); const parts = [['list', '物件一覧']];
+  if (ui.objectId) parts.push(['plan', '原価管理（集計・基本予算分配）']);
+  if (ui.allocId) parts.push(['items', '予実績管理（支払項目）']);
+  if (ui.allocId && ui.screen === 'exec') parts.push(['exec', '実行予算計画']);
+  c.innerHTML = parts.map(([s, t]) => s === ui.screen ? `<b>${t}</b>` : `<a data-go="${s}">${t}</a>`).join(' ＞ ') + '<span style="flex:1"></span><span class="note">入力はこの画面を開いた人のブラウザにだけ保存され、他の人には見えません（「初期データに戻す」で最初の状態に戻ります）</span>';
+  c.querySelectorAll('a[data-go]').forEach(a => a.onclick = () => { ui.screen = a.dataset.go; if (ui.screen === 'list') { ui.objectId = null; ui.allocId = null; } if (ui.screen === 'plan') ui.allocId = null; render(); });
+  const m = document.getElementById('main');
+  m.innerHTML = ({ list: vList, plan: vPlan, items: vItems, exec: vExec })[ui.screen]();
+  bind[ui.screen] && bind[ui.screen]();
+  if (document.getElementById('data').classList.contains('on')) vData();
+}
+
+// 物件一覧（軽量な物件選択）
+function vList() {
+  return `<h2>物件を選択</h2><p class="note">物件DBは建築設計ISOと共通（このプロトタイプではサンプル2件）。物件を選ぶと原価管理の画面に移ります。金額：千円（千円未満切り上げ）。</p>
+  <div class="wrap"><table><tr><th>設計番号</th><th>物件名</th><th>業務分類</th><th>設計料（A）</th><th>基本予算（B）</th><th>依頼金額（C）</th><th></th></tr>
+  ${db.Object.map(o => { const cp = db.CostPlan.find(c => c.ObjectId === o.Id); const ws = cp ? where('CostPlanWork', w => w.CostPlanId === cp.Id) : [];
+    return `<tr><td>${o.Code}</td><td>${o.Name}</td><td>${ws.length}</td><td class="n">${yen(sum(ws.map(w => w.DesignFee)))}</td><td class="n">${yen(sum(ws.map(w => w.BasicBudget)))}</td><td class="n">${yen(sum(ws.map(reqC)))}</td><td><button class="p" data-obj="${o.Id}">開く</button></td></tr>`; }).join('')}</table></div>`;
+}
+const bind = {};
+bind.list = () => document.querySelectorAll('[data-obj]').forEach(b => b.onclick = () => { ui.objectId = +b.dataset.obj; ui.screen = 'plan'; render(); });
+
+// ① 集計・基本予算分配
+function vPlan() {
+  const o = get('Object', ui.objectId); const cp = db.CostPlan.find(c => c.ObjectId === o.Id); const ws = where('CostPlanWork', w => w.CostPlanId === cp.Id);
+  const calc = get('DesignFeeCalcHeader', cp.DesignFeeCalcHeaderId);
+  const cds = db.CostDiscipline;
+  let h = `<h2>１．集計・基本予算分配　<span class="note">金額：千円（千円未満切り上げ）／入力欄は円</span></h2>
+  <div class="box row"><span>設計番号 <b>${o.Code}</b></span><span>物件名 <b>${o.Name}</b></span><span>主管GL <b>${nm('Employee', cp.LeadGLEmployeeId)}</b></span><span>算定書 <b>${calc ? calc.Code + '（版' + calc.Version + '）' : '未紐付け'}</b></span><span>基本予算率 <b>0.83</b></span></div>
+  <div class="wrap"><table><tr><th rowspan="2">業務分類</th><th rowspan="2">依頼元／付替先</th><th rowspan="2">ステータス</th><th colspan="3">全体（設計料算定書）</th><th colspan="4">設計依頼書</th><th colspan="2">実行予算</th><th rowspan="2"></th></tr>
+  <tr><th>業務期間</th><th>A 設計料</th><th>B 基本予算</th><th>業務期間（通算）</th><th>C 依頼金額</th><th>D 依頼書基本予算</th><th>E 今後受領予定（A−C）</th><th>F 実行予算</th><th>B−F</th></tr>`;
+  ws.forEach(w => { const C = reqC(w), F = workF(w);
+    h += `<tr><td>${nm('ServiceCategory', w.ServiceCategoryId)}</td><td>${nm('Branch', w.RequestBranchId)}／${nm('Branch', w.TransferBranchId)}</td><td><span class="badge b-${w.Status}">${w.Status}</span></td><td>${w.PlanFrom}～${w.PlanTo}</td><td class="n">${yen(w.DesignFee)}</td><td class="n">${yen(w.BasicBudget)}</td><td>${reqSpan(w)}</td><td class="n">${yen(C)}</td><td class="n">${yen(C * 0.83)}</td><td class="n">${yen(w.DesignFee - C)}</td><td class="n">${yen(F)}</td><td class="n ${w.BasicBudget - F < 0 ? 'neg' : ''}">${yen(w.BasicBudget - F)}</td>
+    <td>${w.Status === '完了' ? '完了済' : `<button data-done="${w.Id}" ${isRole('田中GL') ? '' : 'disabled title="担当GLでログインすると押せます"'}>完了</button>`}</td></tr>`; });
+  const tot = k => sum(ws.map(k));
+  h += `<tr class="sum"><td colspan="4">合計</td><td class="n">${yen(tot(w => w.DesignFee))}</td><td class="n">${yen(tot(w => w.BasicBudget))}</td><td></td><td class="n">${yen(tot(reqC))}</td><td class="n">${yen(tot(reqC) * 0.83)}</td><td class="n">${yen(tot(w => w.DesignFee - reqC(w)))}</td><td class="n">${yen(tot(workF))}</td><td class="n">${yen(tot(w => w.BasicBudget - workF(w)))}</td><td></td></tr></table></div>
+  <p class="note">表示は千円単位で千円未満を切り上げ（データは円で保持）。そのため合計行と各行の和が合わない場合がある。C・D・E は依頼書から計算（保持しない）。依頼見込みはCに含めない。［完了］は担当GLだけが押せ、押すとその業務分類の入力がロックされる（変更履歴 CostPlanWorkHistory に記録）。</p>`;
+  // 依頼書一覧
+  const rs = where('DesignRequest', r => r.ObjectId === o.Id);
+  h += `<h2>２．設計依頼書一覧　<span class="note">金額：千円（千円未満切り上げ）</span></h2><div class="wrap"><table><tr><th>業務分類</th><th>依頼書</th><th>区分</th><th>業務期間</th><th>依頼金額</th><th>基本予算（×0.83）</th><th>依頼日</th><th>状態</th></tr>
+  ${rs.map(r => `<tr><td>${nm('ServiceCategory', get('CostPlanWork', r.CostPlanWorkId).ServiceCategoryId)}</td><td>${r.RequestNo}枚目</td><td>${r.IsProspect ? '依頼見込み' : r.RequestType}</td><td>${r.PeriodFrom}～${r.PeriodTo}</td><td class="n">${yen(r.RequestAmount)}</td><td class="n">${r.IsProspect ? '（予算枠に含めない）' : yen(r.RequestAmount * 0.83)}</td><td>${r.RequestDate || ''}</td><td>${r.ApprovalStatus}</td></tr>`).join('')}</table></div>
+  <div class="box row"><b>依頼書を追加</b><select id="rqW">${ws.map(w => `<option value="${w.Id}">${nm('ServiceCategory', w.ServiceCategoryId)}</option>`).join('')}</select>
+  <label>依頼金額（円） <input type="number" id="rqA" value="2000000" step="100000"></label><label>期間 <input type="month" id="rqF" value="2026-09">～<input type="month" id="rqT" value="2026-10"></label>
+  <label><input type="checkbox" id="rqP"> 依頼見込み</label><button class="p" id="rqAdd" ${isRole('中井一郎') ? '' : 'disabled title="建築設計管理部（依頼書登録）でログインすると押せます"'}>登録</button></div>`;
+  // 基本予算分配
+  h += `<h2>３．基本予算分配（業務分類×業務区分）</h2>${ui.err ? `<div class="err">${ui.err}</div>` : ''}
+  <div class="wrap"><table><tr><th rowspan="2">業務区分</th>${ws.map(w => `<th colspan="3">${nm('ServiceCategory', w.ServiceCategoryId)}　<button data-reset="${w.Id}" ${w.Status === '完了' ? 'disabled' : ''}>算定書比率反映</button></th>`).join('')}</tr>
+  <tr>${ws.map(() => '<th>グループ</th><th>基本予算</th><th>分配率（％）</th>').join('')}</tr>`;
+  cds.forEach(c => { h += `<tr><td>${c.Name}</td>` + ws.map(w => { const a = allocs(w).find(x => x.CostDisciplineId === c.Id); const lk = w.Status === '完了' ? 'disabled' : '';
+      return a ? `<td>${nm('Group', a.ChargeGroupId)}</td><td><input type="number" step="10000" data-aamt="${a.Id}" value="${a.AllocAmount}" ${lk}> <a class="l" data-alloc="${a.Id}">予実績管理</a></td><td><input type="number" step="0.1" class="h" data-arate="${a.Id}" value="${(a.AllocRate * 100).toFixed(1)}" ${lk}></td>` : '<td></td><td></td><td></td>'; }).join('') + '</tr>'; });
+  h += `<tr class="sum"><td>合計</td>${ws.map(w => { const r = sum(allocs(w).map(a => a.AllocRate)); return `<td></td><td class="n">${yen(sum(allocs(w).map(a => a.AllocAmount)))}</td><td class="n ${Math.abs(r - 1) > 1e-6 ? 'neg' : ''}">${(r * 100).toFixed(1)}${Math.abs(r - 1) > 1e-6 ? ' ≠100' : ''}</td>`; }).join('')}</tr></table></div>
+  <p class="note">金額と率のどちらでも直せる（もう一方は自動計算）。合計が100％でない業務分類は、予実績管理へ進めない。［算定書比率反映］で算定書の分野比率（総合→意匠、構造→構造、設備→機械）に戻す。電気への分配は手で行う（確認事項No.42）。</p>`;
+  return h;
+}
+bind.plan = () => {
+  document.querySelectorAll('[data-aamt]').forEach(i => i.onchange = () => { const a = get('BasicBudgetAllocation', +i.dataset.aamt); const w = get('CostPlanWork', a.CostPlanWorkId); a.AllocAmount = num(i.value); a.AllocRate = a.AllocAmount / w.BasicBudget; ui.err = ''; render(); });
+  document.querySelectorAll('[data-arate]').forEach(i => i.onchange = () => { const a = get('BasicBudgetAllocation', +i.dataset.arate); const w = get('CostPlanWork', a.CostPlanWorkId); a.AllocRate = num(i.value) / 100; a.AllocAmount = Math.round(w.BasicBudget * a.AllocRate); ui.err = ''; render(); });
+  document.querySelectorAll('[data-reset]').forEach(b => b.onclick = () => { const w = get('CostPlanWork', +b.dataset.reset); const cp = get('CostPlan', w.CostPlanId);
+    const rs = where('DesignFeeCalcResult', r => r.HeaderId === cp.DesignFeeCalcHeaderId && r.ServiceCategoryId === w.ServiceCategoryId); const tot = sum(rs.map(r => r.Amount)); if (!tot) { toast('この業務分類には算定書の結果がありません'); return; }
+    allocs(w).forEach(a => { const r = sum(rs.map(x => sum(where('DisciplineMapping', m => m.DisciplineId === x.DisciplineId && m.CostDisciplineId === a.CostDisciplineId).map(m => x.Amount * m.Ratio)))) / tot; a.AllocRate = r; a.AllocAmount = Math.round(w.BasicBudget * r); });
+    toast('算定書の比率に戻しました'); render(); });
+  document.querySelectorAll('[data-alloc]').forEach(l => l.onclick = () => { const a = get('BasicBudgetAllocation', +l.dataset.alloc); const w = get('CostPlanWork', a.CostPlanWorkId); const r = sum(allocs(w).map(x => x.AllocRate));
+    if (Math.abs(r - 1) > 1e-6) { ui.err = `${nm('ServiceCategory', w.ServiceCategoryId)} の分配率の合計が ${(r * 100).toFixed(1)}％ です。100％にしてから進んでください。`; render(); return; }
+    ui.allocId = a.Id; ui.screen = 'items'; render(); });
+  document.querySelectorAll('[data-done]').forEach(b => b.onclick = () => { const w = get('CostPlanWork', +b.dataset.done); ask(`${nm('ServiceCategory', w.ServiceCategoryId)} を完了にします。以後この業務分類は入力できません。よろしいですか？`, () => {
+    const n = where('CostPlanWorkHistory', h => h.CostPlanWorkId === w.Id).length + 1; ins('CostPlanWorkHistory', { CostPlanWorkId: w.Id, ChangeNo: n, ChangeType: '状態の変更', BeforeStatus: w.Status, AfterStatus: '完了', ApprovedBy: me(), ApprovedOn: ts() });
+    w.Status = '完了'; w.CompletedBy = me(); w.CompletedOn = ts(); toast('完了にしました（入力をロック）'); render(); }); });
+  const add = document.getElementById('rqAdd'); if (add) add.onclick = () => { const w = get('CostPlanWork', +document.getElementById('rqW').value); if (w.Status === '完了') { toast('完了した業務分類には登録できません'); return; }
+    const no = where('DesignRequest', r => r.CostPlanWorkId === w.Id).length + 1; const p = document.getElementById('rqP').checked;
+    ins('DesignRequest', { ObjectId: ui.objectId, CostPlanWorkId: w.Id, RequestNo: no, RequestType: '設計依頼', IsProspect: p, RequestAmount: num(document.getElementById('rqA').value), PeriodFrom: document.getElementById('rqF').value, PeriodTo: document.getElementById('rqT').value, RequestDate: ts(10), ApprovalStatus: p ? '見込み' : '承認済' });
+    toast(p ? '依頼見込みを登録しました（Cには含めません）' : `${no}枚目の依頼書を登録しました。依頼金額Cと今後受領予定Eが変わります`); render(); };
+};
+
+// ２．予実績管理（支払項目の分配）
+function vItems() {
+  const a = get('BasicBudgetAllocation', ui.allocId); const w = get('CostPlanWork', a.CostPlanWorkId); const eb = latestEB(a); const lk = w.Status === '完了';
+  let h = `<h2>予実績管理（支払項目ごとの基本予算）　<span class="note">金額：千円（千円未満切り上げ）／入力欄は円</span></h2><div class="box row"><span>業務分類 <b>${nm('ServiceCategory', w.ServiceCategoryId)}</b></span><span>業務区分 <b>${nm('CostDiscipline', a.CostDisciplineId)}</b></span><span>グループ <b>${nm('Group', a.ChargeGroupId)}</b></span><span>業務区分の基本予算 <b>${yen(a.AllocAmount)}</b></span>${lk ? '<span class="badge b-完了">完了（ロック）</span>' : ''}</div>
+  <div class="wrap"><table><tr><th>支払項目</th><th>基本予算</th><th>分配率</th><th>実行予算（最新の版）</th><th>基本予算−実行予算</th><th>初期値の出所</th></tr>`;
+  items(a).forEach(i => { const p = get('PaymentItem', i.PaymentItemId); const amt = p.IsLabor ? laborBase(a) : i.Amount; const f = eb ? ebByItem(eb, p.Id) : 0;
+    h += `<tr><td>${p.Name}</td><td>${p.IsLabor ? `<b>${yen(amt)}</b>` : `<input type="number" step="1000" data-item="${p.Id}" value="${amt}" ${lk ? 'disabled' : ''}>`}</td><td class="n">${(amt / a.AllocAmount * 100).toFixed(1)}％</td><td class="n">${eb ? yen(f) : ''}</td><td class="n ${amt - f < 0 ? 'neg' : ''}">${eb ? yen(amt - f) : ''}</td><td>${p.IsLabor ? '自動（基本予算−人件費以外）' : (i.InitialSource || '')}</td></tr>`; });
+  h += `<tr class="sum"><td>合計</td><td class="n">${yen(a.AllocAmount)}</td><td class="n">100.0％</td><td class="n">${eb ? yen(ebTotal(eb)) : ''}</td><td class="n ${eb && a.AllocAmount - ebTotal(eb) < 0 ? 'neg' : ''}">${eb ? yen(a.AllocAmount - ebTotal(eb)) : ''}</td><td></td></tr></table></div>
+  <p class="note">人件費は「業務区分の基本予算 − 人件費以外の合計」で自動計算（BasicBudgetItem）。実行予算は最新の版（IsLatest）の合計。</p>
+  <p><button class="p" id="toExec">実行予算計画へ</button> ${eb ? `<span class="badge b-${eb.WFStatus}">版${eb.VersionNo}：${eb.WFStatus}</span>` : '（実行予算はまだありません）'}</p>`;
+  return h;
+}
+bind.items = () => {
+  document.querySelectorAll('[data-item]').forEach(i => i.onchange = () => { const a = get('BasicBudgetAllocation', ui.allocId); const pid = +i.dataset.item; let it = where('BasicBudgetItem', x => x.BasicBudgetAllocationId === a.Id && x.PaymentItemId === pid)[0];
+    if (!it) it = ins('BasicBudgetItem', { BasicBudgetAllocationId: a.Id, PaymentItemId: pid, Amount: 0, InitialSource: '手入力' }); it.Amount = num(i.value);
+    const lab = where('BasicBudgetItem', x => x.BasicBudgetAllocationId === a.Id && get('PaymentItem', x.PaymentItemId).IsLabor)[0]; if (lab) lab.Amount = laborBase(a); else ins('BasicBudgetItem', { BasicBudgetAllocationId: a.Id, PaymentItemId: db.PaymentItem.find(p => p.IsLabor).Id, Amount: laborBase(a), InitialSource: '自動（残り）' });
+    if (laborBase(a) < 0) toast('人件費がマイナスになりました。人件費以外の配分を見直してください'); render(); });
+  document.getElementById('toExec').onclick = () => { const a = get('BasicBudgetAllocation', ui.allocId); let eb = latestEB(a);
+    if (!eb) eb = ins('ExecutionBudget', { BasicBudgetAllocationId: a.Id, VersionNo: 0, IsLatest: true, WFStatus: '作成中', EditableByManager: false });
+    ui.ebId = eb.Id; ui.screen = 'exec'; render(); };
+};
+
+// ２-１．実行予算計画
+function vExec() {
+  const a = get('BasicBudgetAllocation', ui.allocId); const w = get('CostPlanWork', a.CostPlanWorkId);
+  const vers = where('ExecutionBudget', e => e.BasicBudgetAllocationId === a.Id).sort((x, y) => x.VersionNo - y.VersionNo);
+  if (!ui.ebId || !vers.some(v => v.Id === ui.ebId)) ui.ebId = latestEB(a).Id;
+  const eb = get('ExecutionBudget', ui.ebId); const ed = editable(eb) && isRole('佐藤次郎'); const dis = ed ? '' : 'disabled';
+  const M = months(w.PlanFrom, w.PlanTo); const base = laborBase(a); const total = ebTotal(eb); const rt = route(eb, a);
+  let h = `<h2>実行予算計画　<span class="note">金額：千円（千円未満切り上げ）／時間単価は円／入力欄は円・時間</span></h2>
+  <div class="box row"><span>業務分類 <b>${nm('ServiceCategory', w.ServiceCategoryId)}</b></span><span>業務区分 <b>${nm('CostDiscipline', a.CostDisciplineId)}</b></span><span>グループ <b>${nm('Group', a.ChargeGroupId)}</b></span><span>業務期間 <b>${w.PlanFrom}～${w.PlanTo}</b></span>
+  <span>版 <select id="ver">${vers.map(v => `<option value="${v.Id}" ${v.Id === eb.Id ? 'selected' : ''}>版${v.VersionNo}${v.VersionNo ? '（修正実行予算）' : '（当初）'}${v.IsLatest ? '・最新' : ''}</option>`).join('')}</select></span>
+  <span class="badge b-${eb.WFStatus}">${eb.WFStatus}</span>${w.Status === '完了' ? '<span class="badge b-完了">業務分類は完了（ロック）</span>' : ''}</div>
+  ${!ed && editable(eb) ? '<div class="warn">入力は設計責任者（佐藤次郎）でログインするとできます。</div>' : ''}
+  ${!eb.IsLatest ? '<div class="warn">過去の版を表示しています（参照のみ）。</div>' : ''}
+  <div class="box row"><span>業務区分の基本予算 <b>${yen(a.AllocAmount)}</b></span><span>実行予算 合計 <b>${yen(total)}</b></span><span>基本予算−実行予算 <b class="${a.AllocAmount - total < 0 ? 'neg' : ''}">${yen(a.AllocAmount - total)}</b></span><span>承認ルート <b>${rt === '赤字' ? '赤字 → 所属設計部長＋建築設計管理部長' : '予算内 → 担当GL'}</b></span>
+  ${vers.length > 1 ? `<span>当初（版0）との差 <b>${yen(total - ebTotal(vers[0]))}</b></span>` : ''}</div>`;
+  // 人件費
+  const mems = where('ExecBudgetMember', m => m.ExecutionBudgetId === eb.Id);
+  h += `<h2>人件費内訳</h2><div class="wrap"><table><tr><th>役割</th><th>社内資格</th><th>氏名</th><th>関与率</th><th>時間単価（円・計画時に固定）</th><th>按分予算</th><th>予定時間（予算ベース）</th><th></th>${M.map(m => `<th>${mlabel(m)}</th>`).join('')}<th>予定時間 計</th><th>実行予算</th><th>予算差額</th><th></th></tr>`;
+  mems.forEach(m => { const mm = memMonthly(m); const hrs = sum(mm.map(x => x.PlannedHours)); const amt = memAmt(m); const alloc = base * m.InvolvementRate / 100;
+    const promo = m.EmployeeId ? M.map(ym => qualAt(m.EmployeeId, ym)).find(q => q && q !== m.QualificationId) : null;
+    h += `<tr><td><select data-mrole="${m.Id}" ${dis}>${['GL','設計責任者','設計担当者'].map(r => `<option ${r === m.Role ? 'selected' : ''}>${r}</option>`).join('')}</select></td>
+    <td><select data-mq="${m.Id}" ${dis}>${db.Qualification.map(q => `<option value="${q.Id}" ${q.Id === m.QualificationId ? 'selected' : ''}>${q.Name}</option>`).join('')}</select></td>
+    <td><select data-memp="${m.Id}" ${dis}><option value="">（未定）</option>${db.Employee.filter(e => !['設計部長','建築設計管理部長','中井一郎'].includes(e.Name)).map(e => `<option value="${e.Id}" ${e.Id === m.EmployeeId ? 'selected' : ''}>${e.Name}</option>`).join('')}</select>${m.EmployeeId ? ` <a class="l" data-haichi="${m.EmployeeId}">配置状況</a>` : ''}</td>
+    <td><input type="number" class="h" data-mrate="${m.Id}" value="${m.InvolvementRate}" ${dis}>％</td>
+    <td class="n">${en(m.HourlyRate)}${promo ? `<br><span class="neg" title="計画時の単価で固定（10/1決定）。AH画面1002は昇格月から新単価で計算しており要確認（Q1）">昇格あり：${nm('Qualification', promo)} ${en(rateOf(promo))}</span>` : ''}</td>
+    <td class="n">${yen(alloc)}</td><td class="n">${(alloc / m.HourlyRate).toFixed(2)}</td><td>時間<br>金額（千円）</td>
+    ${M.map(ym => { const x = mm.find(y => y.YearMonth === ym); return `<td><input type="number" class="h" step="0.5" data-mh="${m.Id}|${ym}" value="${x ? x.PlannedHours : ''}" ${dis}><br><span class="note">${x ? yen(num(x.PlannedHours) * m.HourlyRate) : ''}</span></td>`; }).join('')}
+    <td class="n">${hrs.toFixed(2)}</td><td class="n">${yen(amt)}</td><td class="n ${alloc - amt < 0 ? 'neg' : ''}">${yen(alloc - amt)}</td><td><button data-mdel="${m.Id}" ${dis}>削除</button></td></tr>`; });
+  const rsum = sum(mems.map(m => m.InvolvementRate));
+  h += `<tr class="sum"><td colspan="3">合計</td><td class="n ${rsum !== 100 ? 'neg' : ''}">${rsum}％${rsum !== 100 ? ' ≠100' : ''}</td><td></td><td class="n">${yen(base)}</td><td></td><td></td>${M.map(ym => `<td class="n">${sum(mems.map(m => (memMonthly(m).find(y => y.YearMonth === ym) || {}).PlannedHours)).toFixed(2)}</td>`).join('')}<td class="n">${sum(mems.flatMap(m => memMonthly(m).map(x => x.PlannedHours))).toFixed(2)}</td><td class="n">${yen(ebLabor(eb))}</td><td class="n ${base - ebLabor(eb) < 0 ? 'neg' : ''}">${yen(base - ebLabor(eb))}</td><td></td></tr></table></div>
+  <div class="row" style="margin:6px 0"><button id="mAdd" ${dis}>メンバーを追加（資格だけで試算）</button><button id="mSpread" ${dis}>予定時間按分（予算ベースの時間を月に均等割り）</button><span class="note">氏名が未定でも社内資格だけで試算できる。単価はメンバーを追加・資格を変えた時点の資格別単価を写して固定する。</span></div>`;
+  // 人件費以外
+  db.PaymentItem.filter(p => !p.IsLabor).forEach(p => { const ls = where('ExecBudgetCostLine', l => l.ExecutionBudgetId === eb.Id && l.PaymentItemId === p.Id); const bi = items(a).find(i => i.PaymentItemId === p.Id); if (!ls.length && !bi.Amount) return;
+    const disp = p.Name === '派遣外注費' || p.Name === 'その他の外注費';
+    h += `<h2>${p.Name}内訳　<span class="note">支払項目の基本予算 ${yen(bi.Amount)}／実行予算 ${yen(ebByItem(eb, p.Id))}</span></h2><div class="wrap"><table><tr><th>${disp ? '支払先' : '項目'}</th>${disp ? '<th>時間単価（円）</th><th>関与率</th>' : ''}<th>行の基本予算</th>${M.map(m => `<th>${mlabel(m)}</th>`).join('')}<th>実行予算</th><th>行の差額</th><th></th></tr>`;
+    ls.forEach(l => { const lm = lineMonthly(l); const amt = lineAmt(l);
+      h += `<tr><td>${disp ? `<select data-lv="${l.Id}" ${dis}>${db.Vendor.map(v => `<option value="${v.Id}" ${v.Id === l.VendorId ? 'selected' : ''}>${v.Name}</option>`).join('')}</select>` : `<input type="text" data-ln="${l.Id}" value="${l.ItemName}" ${dis} style="width:170px">`}${l.SourceCalcDetailId ? '<br><span class="note">算定書の明細から</span>' : ''}</td>
+      ${disp ? `<td><input type="number" data-lr="${l.Id}" value="${l.HourlyRate || 0}" ${dis}></td><td class="n">${l.InvolvementRate || ''}％</td>` : ''}
+      <td class="n">${yen(l.BasicBudgetAmount)}</td>
+      ${M.map(ym => { const x = lm.find(y => y.YearMonth === ym); return `<td><input type="number" class="h" data-lm="${l.Id}|${ym}" value="${x ? (l.HourlyRate ? x.PlannedHours : x.PlannedAmount) : ''}" ${dis} title="${l.HourlyRate ? '時間' : '金額'}">${l.HourlyRate && x ? `<br><span class="note">${yen(lineMonthAmt(l, x))}</span>` : ''}</td>`; }).join('')}
+      <td class="n">${yen(amt)}</td><td class="n ${l.BasicBudgetAmount - amt < 0 ? 'neg' : ''}">${yen(l.BasicBudgetAmount - amt)}</td><td><button data-ldel="${l.Id}" ${dis}>削除</button></td></tr>`; });
+    h += `</table></div><button data-ladd="${p.Id}" ${dis}>行を追加</button>${disp ? '<span class="note">　派遣・外注は時間を入力（時間×時間単価）</span>' : '<span class="note">　算定時になかった項目も追加できる（行の基本予算は0）</span>'}`; });
+  // 申請・承認
+  const logs = where('ExecutionBudgetApproval', x => x.ExecutionBudgetId === eb.Id);
+  const pend = eb.WFStatus === '申請中'; const nextStep = pend ? (eb.ApprovalRoute === '予算内' ? '担当GL' : (logs.some(x => x.StepName === '所属設計部長' && x.Action === '承認' && x.ApplyNo === eb._apply) ? '建築設計管理部長' : '所属設計部長')) : '';
+  const stepUser = { '担当GL': '田中GL', '所属設計部長': '設計部長', '建築設計管理部長': '建築設計管理部長' };
+  h += `<h2>申請・承認</h2><div class="box">
+  ${eb.WFStatus === '作成中' || eb.WFStatus === '差戻' ? `<div class="row">${rt === '赤字' ? `<label>赤字の理由（必須） <input type="text" id="defR" value="${eb.DeficitReason || ''}" style="width:360px" ${dis}></label>` : ''}${eb.VersionNo > 0 ? `<span>修正の理由：${eb.RevisionReason || ''}</span>` : ''}<button class="p" id="apply" ${ed && eb.IsLatest ? '' : 'disabled'}>申請（${rt === '赤字' ? '赤字：部長2名の承認' : '予算内：担当GLの承認'}）</button></div>` : ''}
+  ${pend ? `<div class="row">承認待ち：<b>${nextStep}（${stepUser[nextStep]}）</b>　<button class="p" id="appr" ${isRole(stepUser[nextStep]) ? '' : 'disabled'}>承認</button><input type="text" id="rejC" placeholder="差戻しの理由" ${isRole(stepUser[nextStep]) ? '' : 'disabled'}><button id="rej" ${isRole(stepUser[nextStep]) ? '' : 'disabled'}>差戻し</button>${isRole(stepUser[nextStep]) ? '' : `<span class="note">${stepUser[nextStep]} でログインすると操作できます</span>`}</div>` : ''}
+  ${eb.WFStatus === '承認済' && eb.IsLatest && w.Status !== '完了' ? `<div class="row">承認済（${nm('Employee', eb.ApprovedBy)} ${eb.ApprovedOn || ''}）
+     ${eb.EditableByManager ? `<span class="ok">上長が変更可にしました（${nm('Employee', eb.EditPermittedBy)} ${eb.EditPermittedOn}）</span><input type="text" id="revR" placeholder="修正の理由（必須）" style="width:260px" ${isRole('佐藤次郎') ? '' : 'disabled'}><button class="p" id="rev" ${isRole('佐藤次郎') ? '' : 'disabled'}>修正実行予算を作成</button>`
+       : `<button id="permit" ${isRole('田中GL') ? '' : 'disabled'}>変更可にする（上長）</button><span class="note">実行予算の修正は、上長（担当GL）が変更可にした場合だけできる</span>`}</div>` : ''}
+  <table style="margin-top:6px"><tr><th>申請の回</th><th>段</th><th>操作した人</th><th>操作</th><th>日時</th><th>コメント</th></tr>${logs.map(x => `<tr><td>${x.ApplyNo}</td><td>${x.StepName}</td><td>${nm('Employee', x.ActorEmployeeId)}</td><td>${x.Action}</td><td>${x.ActedOn}</td><td>${x.Comment || ''}</td></tr>`).join('') || '<tr><td colspan="6" class="note">まだ記録がありません</td></tr>'}</table></div>`;
+  return h;
+}
+bind.exec = () => {
+  const a = get('BasicBudgetAllocation', ui.allocId); const w = get('CostPlanWork', a.CostPlanWorkId); const eb = get('ExecutionBudget', ui.ebId); const M = months(w.PlanFrom, w.PlanTo);
+  const on = (sel, ev, f) => document.querySelectorAll(sel).forEach(el => el[ev] = () => { f(el); render(); });
+  on('#ver', 'onchange', el => ui.ebId = +el.value);
+  on('[data-mrole]', 'onchange', el => get('ExecBudgetMember', +el.dataset.mrole).Role = el.value);
+  on('[data-mq]', 'onchange', el => { const m = get('ExecBudgetMember', +el.dataset.mq); m.QualificationId = +el.value; m.HourlyRate = rateOf(m.QualificationId); });
+  on('[data-memp]', 'onchange', el => { const m = get('ExecBudgetMember', +el.dataset.memp); m.EmployeeId = el.value ? +el.value : null; if (m.EmployeeId) { const q = qualAt(m.EmployeeId, w.PlanFrom); if (q) { m.QualificationId = q; m.HourlyRate = rateOf(q); } } });
+  on('[data-mrate]', 'onchange', el => get('ExecBudgetMember', +el.dataset.mrate).InvolvementRate = num(el.value));
+  on('[data-mh]', 'onchange', el => { const [mid, ym] = el.dataset.mh.split('|'); let x = where('ExecBudgetMemberMonthly', y => y.ExecBudgetMemberId === +mid && y.YearMonth === ym)[0]; if (!x) x = ins('ExecBudgetMemberMonthly', { ExecBudgetMemberId: +mid, YearMonth: ym, PlannedHours: 0 }); x.PlannedHours = num(el.value);
+    const m = get('ExecBudgetMember', +mid); if (m.EmployeeId) { const t = haichiMonth(m.EmployeeId, ym); if (t > MONTHLY_LIMIT) toast(`${nm('Employee', m.EmployeeId)} の ${mlabel(ym)} の予定時間が全物件で ${t.toFixed(1)}h になり、上限${MONTHLY_LIMIT}hを超えています`); } });
+  on('[data-mdel]', 'onclick', el => { const id = +el.dataset.mdel; del('ExecBudgetMemberMonthly', x => x.ExecBudgetMemberId === id); del('ExecBudgetMember', x => x.Id === id); });
+  on('#mAdd', 'onclick', () => { const q = db.Qualification.find(x => x.Name === '総合職2級'); ins('ExecBudgetMember', { ExecutionBudgetId: eb.Id, Role: '設計担当者', EmployeeId: null, QualificationId: q.Id, InvolvementRate: 0, HourlyRate: rateOf(q.Id), RateFiscalYear: 2026, IsManualRate: false }); });
+  on('#mSpread', 'onclick', () => { const base = laborBase(a); where('ExecBudgetMember', m => m.ExecutionBudgetId === eb.Id).forEach(m => { const hrs = base * m.InvolvementRate / 100 / m.HourlyRate; del('ExecBudgetMemberMonthly', x => x.ExecBudgetMemberId === m.Id); M.forEach(ym => ins('ExecBudgetMemberMonthly', { ExecBudgetMemberId: m.Id, YearMonth: ym, PlannedHours: Math.round(hrs / M.length * 100) / 100 })); }); toast('予算ベースの予定時間を月に均等に割りました'); });
+  on('[data-ln]', 'onchange', el => get('ExecBudgetCostLine', +el.dataset.ln).ItemName = el.value);
+  on('[data-lv]', 'onchange', el => { const l = get('ExecBudgetCostLine', +el.dataset.lv); l.VendorId = +el.value; l.ItemName = nm('Vendor', l.VendorId); });
+  on('[data-lr]', 'onchange', el => get('ExecBudgetCostLine', +el.dataset.lr).HourlyRate = num(el.value));
+  on('[data-lm]', 'onchange', el => { const [lid, ym] = el.dataset.lm.split('|'); const l = get('ExecBudgetCostLine', +lid); let x = where('ExecBudgetCostLineMonthly', y => y.ExecBudgetCostLineId === +lid && y.YearMonth === ym)[0]; if (!x) x = ins('ExecBudgetCostLineMonthly', { ExecBudgetCostLineId: +lid, YearMonth: ym }); if (l.HourlyRate) x.PlannedHours = num(el.value); else x.PlannedAmount = num(el.value); });
+  on('[data-ldel]', 'onclick', el => { const id = +el.dataset.ldel; del('ExecBudgetCostLineMonthly', x => x.ExecBudgetCostLineId === id); del('ExecBudgetCostLine', x => x.Id === id); });
+  on('[data-ladd]', 'onclick', el => { const p = get('PaymentItem', +el.dataset.ladd); const disp = p.Name === '派遣外注費' || p.Name === 'その他の外注費'; ins('ExecBudgetCostLine', { ExecutionBudgetId: eb.Id, PaymentItemId: p.Id, ItemName: disp ? db.Vendor[0].Name : '新しい項目', VendorId: disp ? db.Vendor[0].Id : null, HourlyRate: disp ? 3800 : 0, InvolvementRate: disp ? 100 : null, BasicBudgetAmount: 0 }); });
+  on('#defR', 'onchange', el => eb.DeficitReason = el.value);
+  const now = () => ts();
+  const ap = document.getElementById('apply'); if (ap) ap.onclick = () => { const rs = sum(where('ExecBudgetMember', m => m.ExecutionBudgetId === eb.Id).map(m => m.InvolvementRate));
+    if (rs !== 100) { toast(`関与率の合計が${rs}％です。100％にしてから申請してください`); return; }
+    const rt = route(eb, a); const dr = document.getElementById('defR'); if (dr) eb.DeficitReason = dr.value;
+    if (rt === '赤字' && !eb.DeficitReason) { toast('赤字のため、赤字の理由を入力してください'); return; }
+    eb._apply = (eb._apply || 0) + 1; eb.ApprovalRoute = rt; eb.WFStatus = '申請中'; ins('ExecutionBudgetApproval', { ExecutionBudgetId: eb.Id, ApplyNo: eb._apply, StepName: '設計責任者', ActorEmployeeId: me(), Action: '申請', ActedOn: now(), Comment: rt === '赤字' ? '赤字：' + eb.DeficitReason : '' });
+    toast(`申請しました（${rt === '赤字' ? '所属設計部長 → 建築設計管理部長' : '担当GL'} の承認待ち）`); render(); };
+  const st = () => eb.ApprovalRoute === '予算内' ? '担当GL' : (where('ExecutionBudgetApproval', x => x.ExecutionBudgetId === eb.Id && x.StepName === '所属設計部長' && x.Action === '承認' && x.ApplyNo === eb._apply).length ? '建築設計管理部長' : '所属設計部長');
+  const ok = document.getElementById('appr'); if (ok) ok.onclick = () => { const s = st(); ins('ExecutionBudgetApproval', { ExecutionBudgetId: eb.Id, ApplyNo: eb._apply, StepName: s, ActorEmployeeId: me(), Action: '承認', ActedOn: now() });
+    if (s === '所属設計部長') toast('所属設計部長が承認しました。次は建築設計管理部長です'); else { eb.WFStatus = '承認済'; eb.ApprovedBy = me(); eb.ApprovedOn = now(); toast('承認されました。実行予算が確定しました'); } render(); };
+  const rj = document.getElementById('rej'); if (rj) rj.onclick = () => { ins('ExecutionBudgetApproval', { ExecutionBudgetId: eb.Id, ApplyNo: eb._apply, StepName: st(), ActorEmployeeId: me(), Action: '差戻', ActedOn: now(), Comment: document.getElementById('rejC').value }); eb.WFStatus = '差戻'; toast('差し戻しました'); render(); };
+  const pm = document.getElementById('permit'); if (pm) pm.onclick = () => { eb.EditableByManager = true; eb.EditPermittedBy = me(); eb.EditPermittedOn = now(); toast('変更可にしました。設計責任者が修正実行予算を作れます'); render(); };
+  const rv = document.getElementById('rev'); if (rv) rv.onclick = () => { const r = document.getElementById('revR').value; if (!r) { toast('修正の理由を入力してください'); return; }
+    const n = ins('ExecutionBudget', { BasicBudgetAllocationId: a.Id, VersionNo: eb.VersionNo + 1, IsLatest: true, WFStatus: '作成中', RevisionReason: r, EditableByManager: false }); eb.IsLatest = false;
+    where('ExecBudgetMember', m => m.ExecutionBudgetId === eb.Id).forEach(m => { const { Id, ...x } = m; const c = ins('ExecBudgetMember', { ...x, ExecutionBudgetId: n.Id }); memMonthly(m).forEach(y => { const { Id: _, ...z } = y; ins('ExecBudgetMemberMonthly', { ...z, ExecBudgetMemberId: c.Id }); }); });
+    where('ExecBudgetCostLine', l => l.ExecutionBudgetId === eb.Id).forEach(l => { const { Id, ...x } = l; const c = ins('ExecBudgetCostLine', { ...x, ExecutionBudgetId: n.Id }); lineMonthly(l).forEach(y => { const { Id: _, ...z } = y; ins('ExecBudgetCostLineMonthly', { ...z, ExecBudgetCostLineId: c.Id }); }); });
+    ui.ebId = n.Id; toast(`版${n.VersionNo}（修正実行予算）を作りました。前の版は参照用に残ります`); render(); };
+  document.querySelectorAll('[data-haichi]').forEach(l => l.onclick = () => haichi(+l.dataset.haichi));
+};
+
+// 配置状況（ポップアップ）
+function haichiRows(eid) {
+  const rows = {};
+  where('ExecBudgetMember', m => m.EmployeeId === eid).forEach(m => { const eb = get('ExecutionBudget', m.ExecutionBudgetId); if (!eb.IsLatest) return; const a = get('BasicBudgetAllocation', eb.BasicBudgetAllocationId), w = get('CostPlanWork', a.CostPlanWorkId), o = get('Object', get('CostPlan', w.CostPlanId).ObjectId);
+    const k = `${o.Code}|${o.Name}|${nm('ServiceCategory', w.ServiceCategoryId)}|${nm('CostDiscipline', a.CostDisciplineId)}|${eb.WFStatus}`; memMonthly(m).forEach(x => { (rows[k] ||= {})[x.YearMonth] = ((rows[k] || {})[x.YearMonth] || 0) + num(x.PlannedHours); }); });
+  return rows;
+}
+const haichiMonth = (eid, ym) => sum(Object.values(haichiRows(eid)).map(r => r[ym] || 0));
+function haichi(eid) {
+  const rows = haichiRows(eid); const M = months('2026-04', '2027-03');
+  let h = `<h2>配置状況（時間）：${nm('Employee', eid)}（2026年度・最新の版の予定時間）</h2><div class="wrap"><table><tr><th>設計番号</th><th>物件名</th><th>業務分類</th><th>業務区分</th><th>版の状態</th>${M.map(m => `<th>${mlabel(m)}</th>`).join('')}</tr>`;
+  Object.entries(rows).forEach(([k, r]) => { const [c, n, s, d, st] = k.split('|'); h += `<tr><td>${c}</td><td>${n}</td><td>${s}</td><td>${d}</td><td><span class="badge b-${st}">${st}</span></td>${M.map(m => `<td class="n">${r[m] ? r[m].toFixed(1) : ''}</td>`).join('')}</tr>`; });
+  h += `<tr class="sum"><td colspan="5">合計（上限 ${MONTHLY_LIMIT}h）</td>${M.map(m => { const t = sum(Object.values(rows).map(r => r[m] || 0)); return `<td class="n ${t > MONTHLY_LIMIT ? 'over' : ''}">${t ? t.toFixed(1) : ''}</td>`; }).join('')}</tr></table></div>
+  <p class="note">物件をまたいで ExecBudgetMemberMonthly を社員で集計（最新の版のみ。作成中の版も含む：BM内で決める論点Q8）。上限を超えた月は赤。</p><button id="mclose" class="p">閉じる</button>`;
+  document.getElementById('modalIn').innerHTML = h; const md = document.getElementById('modal'); md.style.display = 'flex'; document.getElementById('mclose').onclick = () => md.style.display = 'none';
+}
+
+// データ（テーブル）を見る
+function vData() {
+  const box = document.getElementById('data'); const sel = box.dataset.t || 'ExecutionBudget';
+  const ts = Object.keys(db).filter(k => k[0] !== '_');
+  const rows = db[sel]; const cols = [...new Set(rows.flatMap(r => Object.keys(r)))];
+  box.innerHTML = `<div class="row"><b>テーブル</b><select id="dt">${ts.map(t => `<option ${t === sel ? 'selected' : ''}>${t}</option>`).join('')}</select><span class="note">${rows.length}行。画面の操作でこのデータが変わります（列名はテーブル定義たたき台V2と同じ。_で始まる列は画面用の補助）</span></div>
+  <div class="wrap" style="max-height:340px;overflow:auto;margin-top:6px"><table><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr>${rows.map(r => `<tr>${cols.map(c => `<td>${r[c] == null ? '' : String(r[c])}</td>`).join('')}</tr>`).join('')}</table></div>`;
+  document.getElementById('dt').onchange = e => { box.dataset.t = e.target.value; vData(); };
+}
+
+// ---------- 起動 ----------
+const whoSel = document.getElementById('who');
+whoSel.innerHTML = WHO.map(([n, r]) => `<option value="${empId(n)}">${n}（${r}）</option>`).join('');
+whoSel.onchange = render;
+document.getElementById('btnData').onclick = () => { document.getElementById('data').classList.toggle('on'); render(); };
+document.getElementById('btnReset').onclick = () => ask('入力した内容を消して、初期データに戻します。よろしいですか？', () => { try { localStorage.removeItem(KEY); } catch (e) {} db = seed(); ui = { screen: 'list' }; render(); });
+document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') e.target.style.display = 'none'; };
+render();
+</script>
+
+</body></html>
